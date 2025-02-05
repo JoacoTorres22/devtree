@@ -1,0 +1,36 @@
+{
+  "name": "devtree",
+  "version": "1.0.0",
+  "description": "Primer proyecto con express y typescript",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoacoTorres22/devtree.git"
+  },
+  "author": "JoacoTorres22",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoacoTorres22/devtree/issues"
+  },
+  "homepage": "https://github.com/JoacoTorres22/devtree#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "colors": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.7"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^5.0.0",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}
