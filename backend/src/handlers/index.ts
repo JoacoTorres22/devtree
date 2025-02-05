@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
 import slug from 'slug'
+import { validationResult } from "express-validator";
 import User from "../config/models/User"
-import { hashPassword } from "../utils/auth";
+import { checkPassword, hashPassword } from "../utils/auth";
 
 
 export const createAccount = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { email, password } = req.body        
+        // Error manager
+        let errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            res.status(400).json({errors: errors.array()})
+            return
+        }
         
+        const { email, password } = req.body        
+
         // Check Email Exist
         const userExist = await User.findOne({ email });
         if (userExist) {
@@ -37,3 +45,29 @@ export const createAccount = async (req: Request, res: Response): Promise<void> 
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
+
+export const login = async (req: Request, res: Response) => {
+
+    let errors = validationResult(req)
+    if (!errors.isEmpty()) {
+        res.status(400).json({errors: errors.array()})
+        return
+    }
+
+    // Check Email
+    const { email, password } = req.body        
+    const user = await User.findOne({ email });
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return
+    }
+
+    // Check Password
+    const correctPass = await checkPassword(password, user.password)
+    if (!correctPass) {
+        const error = new Error('Invalid Password')
+        res.status(401).json({error: error.message})
+        return
+    }
+    console.log('Autenticado');
+}
