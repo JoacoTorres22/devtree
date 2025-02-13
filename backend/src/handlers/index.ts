@@ -74,3 +74,7 @@ export const login = async (req: Request, res: Response) => {
     res.send(token)
     return
 }
+
+export const getUser = async (req: Request, res: Response) => {
+    console.log(req.user) 
+}
