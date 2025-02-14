@@ -20,7 +20,7 @@ export const createAccount = async (req: Request, res: Response): Promise<void> 
         // Check Email Exist
         const userExist = await User.findOne({ email });
         if (userExist) {
-            res.status(409).json({ error: 'El usuario ya está registrado' });
+            res.status(409).json({ error: 'User Already Exist' });
             return
         }
 
@@ -29,7 +29,7 @@ export const createAccount = async (req: Request, res: Response): Promise<void> 
         const handleExist = await User.findOne({ handle });
         
         if (handleExist) {
-            res.status(409).json({ error: 'Nombre de usuario no disponible' });
+            res.status(409).json({ error: 'Username not available' });
             return
         }
         
@@ -40,10 +40,10 @@ export const createAccount = async (req: Request, res: Response): Promise<void> 
 
         await user.save();
 
-        res.status(201).send('Registro creado correctamente');
+        res.status(201).send('User Created');
 
     } catch (error) {
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
@@ -77,4 +77,32 @@ export const login = async (req: Request, res: Response) => {
 
 export const getUser = async (req: Request, res: Response) => {
     console.log(req.user) 
+    res.send(req.user)
+}
+
+
+export const updateProfile = async (req: Request, res: Response) => {
+    try {
+        const { description } = req.body
+        // Check Handle Exist
+        const handle = slug(req.body.handle, '');
+        const handleExist = await User.findOne({ handle });
+        
+        if (handleExist && handleExist.email !== req.user.email) {
+            res.status(409).json({ error: 'Username not available' });
+            return
+        }
+        // Update User
+        req.user.description = description
+        req.user.handle = handle
+        await req.user.save()
+        res.send('Profile updated')
+
+    } catch (e) {
+        const error = new Error('Error Ocurred')
+        res.status(500).json({errpr: error.message})
+        return 
+    }
+
+
 }

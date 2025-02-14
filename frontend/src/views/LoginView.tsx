@@ -18,7 +18,6 @@ export default function LoginView() {
         try {
             const { data } = await api.post(`/auth/login`, formData)
             localStorage.setItem('AUTH_TOKEN', data)
-            toast.success(data)
         } catch (error) {
             if (isAxiosError(error))
                 toast.error(error.response?.data.error)
@@ -71,7 +70,7 @@ export default function LoginView() {
                 <input
                     type="submit"
                     className="bg-cyan-400 p-3 text-lg w-full uppercase text-slate-600 rounded-lg font-bold cursor-pointer"
-                    value='Iniciar Sesión'
+                    value='Login'
                 />
             </form>
             <nav className="mt-10">
