@@ -114,21 +114,20 @@ export const uploadImage = async (req: Request, res: Response) => {
             multiples: false            
         })
         form.parse(req, (error, fields, files) => {
-            // console.log(files.image)
-            console.log(files.image[0].filepath)
-
-            cloudinary.uploader.upload(files.image[0].filepath, {public_id: uuid()}, async function (error, result) {
-                if (error) {
-                    const error = new Error('Error Ocurred')
-                    res.status(500).json({errpr: error.message})
-                    return 
-                }
-                if (result) {
-                    req.user.image = result.secure_url
-                    await req.user.save()
-                    res.json({image: result.secure_url})
-                }
-            })
+            if (files)
+                console.log(files.image[0].filepath)
+                cloudinary.uploader.upload(files.image[0].filepath, {public_id: uuid()}, async function (error, result) {
+                    if (error) {
+                        const error = new Error('Error Ocurred')
+                        res.status(500).json({errpr: error.message})
+                        return 
+                    }
+                    if (result) {
+                        req.user.image = result.secure_url
+                        await req.user.save()
+                        res.json({image: result.secure_url})
+                    }
+                })
 
         })
     } catch (e) {
