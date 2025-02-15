@@ -47,7 +47,10 @@ export default function ProfileView() {
             uploadImageMutation.mutate(e.target.files[0])
     }
     const handleUserProfileForm = (formData: ProfileForm) => {
-        updateProfileMutation.mutate(formData)
+        const user : User = queryClient.getQueryData(['user'])!
+        user.description = formData.description
+        user.handle = formData.handle
+        updateProfileMutation.mutate(user)
     }
     return (
         <form 
