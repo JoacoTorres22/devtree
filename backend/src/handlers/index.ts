@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import slug from 'slug'
 import { validationResult } from "express-validator";
+import formidable from 'formidable';
+import { v4 as uuid } from 'uuid'
 import User from "../config/models/User"
 import { checkPassword, hashPassword } from "../utils/auth";
 import { generateJWT } from "../utils/jwt";
+import cloudinary from "../config/cloudinary";
 
 
 export const createAccount = async (req: Request, res: Response): Promise<void> => {
@@ -102,6 +105,37 @@ export const updateProfile = async (req: Request, res: Response) => {
         const error = new Error('Error Ocurred')
         res.status(500).json({errpr: error.message})
         return 
+    }
+}
+
+export const uploadImage = async (req: Request, res: Response) => {
+    try {
+        const form = formidable({
+            multiples: false            
+        })
+        form.parse(req, (error, fields, files) => {
+            // console.log(files.image)
+            console.log(files.image[0].filepath)
+
+            cloudinary.uploader.upload(files.image[0].filepath, {public_id: uuid()}, async function (error, result) {
+                if (error) {
+                    const error = new Error('Error Ocurred')
+                    res.status(500).json({errpr: error.message})
+                    return 
+                }
+                if (result) {
+                    req.user.image = result.secure_url
+                    await req.user.save()
+                    res.json({image: result.secure_url})
+                }
+            })
+
+        })
+    } catch (e) {
+        const error = new Error('Error Ocurred')
+        res.status(500).json({errpr: error.message})
+        return 
+        
     }
 
 
