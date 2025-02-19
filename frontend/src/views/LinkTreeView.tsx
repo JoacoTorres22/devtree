@@ -5,7 +5,7 @@ import DevTreeInput from "../components/DevTreeInput";
 import { isValidURL } from "../utils";
 import { toast } from "sonner";
 import { updateUser } from "../api/DevTreweAPI";
-import { User } from "../types";
+import { SocialNetwork, User } from "../types";
 
 export default function LinkTreeView() {
     const [devTreeLinks, setDevTreeLinks] = useState(social)
@@ -38,30 +38,79 @@ export default function LinkTreeView() {
     const handleUrlChange = (e: ChangeEvent<HTMLInputElement>) => {
         const updatedLinks = devTreeLinks.map(link => link.name === e.target.name ? {...link, url: e.target.value} : link)
         setDevTreeLinks(updatedLinks)
-        queryClient.setQueryData(['user'], (prevData: User) => {
-            return {
-                ...prevData, 
-                links: JSON.stringify(updatedLinks)
-            }
-        })
     }
 
+    const links : SocialNetwork[] = JSON.parse(user.links)
+
     const handleEnableLink = (socialNetwork: string) => {
-        console.log(socialNetwork)
         const updatedLinks = devTreeLinks.map(link => {
-            if (link.name === socialNetwork)
-                if (isValidURL(link.url))
-                return {...link, enabled: !link.enabled}
-            else {
-                toast.error('InvalidURL')
+            if (link.name === socialNetwork) {
+                if (isValidURL(link.url)) {
+                    return { ...link, enabled: !link.enabled }
+                } else {
+                    toast.error('InvalidURL')
+                }
             }
             return link
         })
         setDevTreeLinks(updatedLinks)
+
+        let updatedItems : SocialNetwork[] = []
+
+        const selectedSocialNetwork = updatedLinks.find(link => link.name === socialNetwork)
+        if (selectedSocialNetwork?.enabled) {
+            const id = links.filter(link => link.id).length + 1
+            if (links.some(link => link.name === selectedSocialNetwork.name)) {
+                updatedItems = links.map(link => {
+                    if (link.name === selectedSocialNetwork.name) {
+                        return {
+                            ...link, 
+                            enabled: true, 
+                            id
+                        }
+                    } else {
+                        return link
+                    }
+                })
+            } else {
+                const newItem = {
+                    ...selectedSocialNetwork, 
+                    id
+                }
+                updatedItems = [...links, newItem]
+            }
+        } else {
+            const indexToUpdate = links.findIndex(link => link.name === socialNetwork)
+            const linkToUpdate = links.find(link => link.name === selectedSocialNetwork?.name)
+            const idToUpdate = linkToUpdate ? linkToUpdate.id : -1
+            if (indexToUpdate > -1) {
+
+                updatedItems = links.map(link => {
+                    if (link.name === socialNetwork) {
+                        return { 
+                            ...link, 
+                            id:0,
+                            enabled:false
+                        }
+                    } else if (link.id > idToUpdate) {
+                        return {
+                            ...link, 
+                            id: link.id - 1
+                        }
+                    } else {
+                        return link
+                    }
+                })
+            } else {
+                updatedItems = links
+            }
+        }
+        
+        // Save on DB
         queryClient.setQueryData(['user'], (prevData: User) => {
             return {
                 ...prevData, 
-                links: JSON.stringify(updatedLinks)
+                links: JSON.stringify(updatedItems)
             }
         })
     }

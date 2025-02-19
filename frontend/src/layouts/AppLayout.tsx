@@ -12,6 +12,5 @@ export default function AppLayout() {
     })
     if (isLoading) return 'Loading...'
     if (isError) return <Navigate to='/auth/login'/>
-    console.log(data)
     if (data) return <DevTree data={data}/>
 }
