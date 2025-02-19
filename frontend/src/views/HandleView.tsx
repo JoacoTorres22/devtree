@@ -1,6 +1,22 @@
+import { Navigate, useParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { getUserByHandle } from '../api/DevTreweAPI'
+import HandleData from './HandleData'
+import LoadingView from './LoadingView'
 
 export default function HandleView() {
-  return (
-    <div className="text-white">HandleView</div>
-  )
+  const params = useParams()
+  const handle = params.handle!
+  const { data, error, isLoading } = useQuery({
+    queryFn: () => getUserByHandle(handle),
+    queryKey: ['handle', handle],
+    retry: 1
+  })
+
+  if (isLoading) return <LoadingView />
+
+  if (error) return <Navigate to={'/404'} />
+
+
+  if (data) return (<HandleData data={data} />)
 }
