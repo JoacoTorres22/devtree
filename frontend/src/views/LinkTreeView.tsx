@@ -127,7 +127,7 @@ export default function LinkTreeView() {
             ))}
             <button
             className="bg-cyan-400 p-2 text-lg uppercase w-full text-slate-600 rounded-lg font-bold"
-            onClick={() => mutate(user)}
+            onClick={() => mutate(queryClient.getQueryData(['user'])!)}
             >Save Changes</button>
         </div>
      );
